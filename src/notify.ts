@@ -1,41 +1,42 @@
 import {
-  AppriseNotifier,
-  DiscordNotifier,
-  EmailNotifier,
-  LocalNotifier,
-  TelegramNotifier,
-  GotifyNotifier,
-  SlackNotifier,
-  BarkNotifier,
-  NtfyNotifier,
-  PushoverNotifier,
-  HomeassistantNotifier,
-  WebhookNotifier,
-} from './notifiers/index.js';
-import {
   config,
-  DiscordConfig,
-  EmailConfig,
   NotificationType,
+  DiscordConfig,
+  PushoverConfig,
+  EmailConfig,
   TelegramConfig,
   AppriseConfig,
-  PushoverConfig,
   GotifyConfig,
   SlackConfig,
-  NtfyConfig,
   HomeassistantConfig,
   BarkConfig,
+  NtfyConfig,
   WebhookConfig,
 } from './common/config/index.js';
 import L from './common/logger.js';
 import { NotificationReason } from './interfaces/notification-reason.js';
+import { OfferInfo } from './interfaces/types.js';
 // eslint-disable-next-line import/no-cycle
 import { DeviceLogin } from './device-login.js';
+import { DiscordNotifier } from './notifiers/discord.js';
+import { PushoverNotifier } from './notifiers/pushover.js';
+import { EmailNotifier } from './notifiers/email.js';
+import { LocalNotifier } from './notifiers/local.js';
+import { TelegramNotifier } from './notifiers/telegram.js';
+import { AppriseNotifier } from './notifiers/apprise.js';
+import { GotifyNotifier } from './notifiers/gotify.js';
+import { SlackNotifier } from './notifiers/slack.js';
+import { HomeassistantNotifier } from './notifiers/homeassistant.js';
+import { BarkNotifier } from './notifiers/bark.js';
+import { NtfyNotifier } from './notifiers/ntfy.js';
+import { WebhookNotifier } from './notifiers/webhook.js';
+import { getLocaltunnelUrl } from './common/localtunnel.js';
 
 export async function sendNotification(
   accountEmail: string,
   reason: NotificationReason,
   url: string,
+  offers?: OfferInfo[],
 ): Promise<void> {
   const account = config.accounts.find((acct) => acct.email === accountEmail);
   const notifierConfigs = account?.notifiers || config.notifiers;
@@ -82,7 +83,7 @@ export async function sendNotification(
   });
 
   await Promise.all(
-    notifiers.map((notifier) => notifier.sendNotification(accountEmail, reason, url)),
+    notifiers.map((notifier) => notifier.sendNotification(accountEmail, reason, url, offers)),
   );
 }
 

@@ -63,7 +63,7 @@ export async function redeemAccount(account: AccountConfig): Promise<void> {
       L.debug(`Sending checkout link for ${offers.length} offer(s)`);
       const checkoutUrl = generateCheckoutUrl(offers);
       L.info({ url: checkoutUrl }, 'Dispatching checkout notification');
-      await sendNotification(account.email, NotificationReason.PURCHASE, checkoutUrl);
+      await sendNotification(account.email, NotificationReason.PURCHASE, checkoutUrl, offers);
     } else {
       L.info('No free games available');
     }

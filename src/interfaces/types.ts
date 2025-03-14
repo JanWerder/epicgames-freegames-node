@@ -80,6 +80,8 @@ export interface OfferInfo {
   offerId: string;
   productName: string;
   productSlug?: string;
+  tags?: { id: string; name: string; groupName?: string | null }[];
+  coverImage?: string;
 }
 
 export interface ArkoseData {

@@ -176,7 +176,16 @@ export default class PuppetFreeGames extends PuppetBase {
         }),
       )
     ).flat();
-    return allProductOffers;
+
+    // Get complete offer information including tags for each game
+    const offersWithTags = await Promise.all(
+      allProductOffers.map(async (offer) => {
+        const offerDetails = await this.validateOffer(offer.offerId, offer.offerNamespace);
+        return offerDetails || offer;
+      })
+    );
+
+    return offersWithTags.filter((offer): offer is OfferInfo => offer !== undefined);
   }
 
   async getPageSlugMapping(pageSlug: string): Promise<PageSlugMappingResult | string> {
@@ -346,11 +355,29 @@ export default class PuppetFreeGames extends PuppetBase {
     const offer = offerResponseBody.data.Catalog.catalogOffer;
     if (!this.isOfferValid(offer)) return undefined;
 
+    const tags = offer.tags.map(tag => ({
+      id: tag.id,
+      name: tag.name,
+      groupName: tag.groupName
+    }));
+
+    // Find the cover image (prefer Thumbnail or DieselGameBoxTall)
+    let coverImage: string | undefined;
+    if (offer.keyImages && offer.keyImages.length > 0) {
+      const thumbnail = offer.keyImages.find(img => img.type === 'Thumbnail');
+      const tallImage = offer.keyImages.find(img => img.type === 'DieselGameBoxTall');
+      const offerImage = offer.keyImages.find(img => img.type === 'OfferImageWide');
+      
+      coverImage = (thumbnail?.url || tallImage?.url || offerImage?.url || offer.keyImages[0]?.url) || undefined;
+    }
+
     return {
       offerId: offer.id,
       offerNamespace: offer.namespace,
       productName: offer.title,
       productSlug: offer.productSlug,
+      tags,
+      coverImage,
     };
   }
 
