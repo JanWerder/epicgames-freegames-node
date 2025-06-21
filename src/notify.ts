@@ -30,7 +30,6 @@ import { HomeassistantNotifier } from './notifiers/homeassistant.js';
 import { BarkNotifier } from './notifiers/bark.js';
 import { NtfyNotifier } from './notifiers/ntfy.js';
 import { WebhookNotifier } from './notifiers/webhook.js';
-import { getLocaltunnelUrl } from './common/localtunnel.js';
 
 export async function sendNotification(
   accountEmail: string,
